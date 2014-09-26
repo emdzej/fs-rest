@@ -2,6 +2,7 @@ var express = require('express');
 var path = require('path');
 var fs = require('fs');
 var util = require('util');
+var cors = require('cors')
 var app = express();
 var dataDir = 'data/';
 
@@ -129,6 +130,8 @@ function onDelete(request, response, next) {
 
 
 }
+// by default - allow requests from everywhere
+app.use(cors());
 
 app.use(function(req, res, next) {
   req.rawBody = '';
