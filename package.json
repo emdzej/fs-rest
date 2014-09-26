@@ -2,6 +2,7 @@
     "name": "fs-rest",
     "version": "0.0.1",
 	"dependencies": {
-		"express" : ">1"
+		"express" : ">1",
+        "cors" : ">1"
 	}
 }
