@@ -3,6 +3,7 @@
     "version": "0.0.1",
 	"dependencies": {
 		"express" : ">1",
-        "cors" : ">1"
+        "cors" : ">1",
+        "node-uuid" : ">=1.4.1"
 	}
 }

@@ -3,6 +3,7 @@ var path = require('path');
 var fs = require('fs');
 var util = require('util');
 var cors = require('cors')
+var uuid = require('node-uuid');
 var app = express();
 var dataDir = 'data/';
 
@@ -18,10 +19,12 @@ function getResourcePath(resource, id) {
 }
 
 function onGet(request, response, next) {
+    console.log("Got GET request");
 	var resource = request.params[0] || null;
 	var id = request.params[1] || null
     var filter = id ? null : isEmpty(request.query) ? null : request.query;
-    console.log("Using filter: " + filter);
+    console.log("Using filter: " );
+    console.log(filter);
 	var filePath = getResourcePath(resource, id);
 	fs.exists(filePath, function(exists) {
 		if (exists) {
@@ -38,8 +41,9 @@ function onGet(request, response, next) {
 
                     var content = fs.readFileSync(fileName);
                     if (filter) {
-                        console.log("filtering");
+                        console.log('Checking object for match');
                         var data = JSON.parse(content);
+                        console.log(data);
                         var match = true;
                         for (var property in filter) {
                             if (data[property] != filter[property]) {
@@ -73,21 +77,31 @@ function onGet(request, response, next) {
 }
 
 function onPut(request, response, next) {
+    console.log("Got PUT request");
 	var resource = request.params[0] || null;
 	var id = request.params[1] || null
 	var filePath = getResourcePath(resource, id);
-	fs.writeFile(filePath, request.rawBody, function(error) {
-		if (error) {
-			response.status(500).end();
-		} else {	
-			response.status(200).end();
-		}
-	});
+    fs.exists(filePath, function(exists) {
+        if (exists) {
+            console.log("Resource " + filePath + " found, updating");
+            fs.writeFile(filePath, request.rawBody, function(error) {
+                if (error) {
+                    response.status(500).end();
+                } else {
+                    response.status(200).end();
+                }
+            });
+        } else {
+            console.log("Resource " + filePath + " does not exist, nothing to update!");
+            response.status(500).end();
+        }
+    });
 }
 
 function onPost(request, response, next) {
+    console.log("Got POST request");
 	var resource = request.params[0] || null;
-	var id = request.params[1] || null
+	var id = request.params[1] || uuid.v4();
 	var filePath = getResourcePath(resource, id);
 	fs.exists(filePath, function(exists) {
 		if (exists) {
@@ -100,7 +114,7 @@ function onPost(request, response, next) {
                     console.log(error);
 					response.status(500).end();
 				} else {	
-					response.status(200).end();
+					response.json({"id" : id});
 				}
 			});
 		}
@@ -109,6 +123,7 @@ function onPost(request, response, next) {
 }
 
 function onDelete(request, response, next) {
+    console.log("Got DELETE request");
 	var resource = request.params[0] || null;
 	var id = request.params[1] || null
 	var filePath = getResourcePath(resource, id);
@@ -149,5 +164,6 @@ app.use(function(req, res, next) {
 app.get(route, onGet);
 app.put(route, onPut);
 app.post(route, onPost);
+app.delete(route, onDelete);
 
 app.listen(8080);
