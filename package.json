@@ -1,5 +1,6 @@
 {
     "name": "fs-rest",
+    "repository": "https://github.com/emdzej/fs-rest.git",
     "version": "0.0.1",
 	"dependencies": {
 		"express" : ">1",
